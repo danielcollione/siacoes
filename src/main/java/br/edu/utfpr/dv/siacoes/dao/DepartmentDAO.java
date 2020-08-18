@@ -12,16 +12,38 @@ import java.util.List;
 import br.edu.utfpr.dv.siacoes.log.UpdateEvent;
 import br.edu.utfpr.dv.siacoes.model.Department;
 
+//Decorrente da análise de software feita no algoritmo DepartmentDao, creio que não há nenhuma alteração a ser feita.
+//
+//Primeiramente as chamdas do algoritmo ao banco para solicitação de 'departamento' estão mais que adequadas e os métodos adequados para carregar o objeto e liberar o fluxo ocupado quando retornado o valor também.
+//O que podemos formular para deixar o código mais simples e menos complexo é a criação de uma função que faça a conexão ao banco ser comum nos métodos que esta é requisitada, porém o fechamento do fluxo nesta função 
+// poderia interferir no objeto desejado do banco, e a função fecharia a conexão antes mesmo de conseguir pegar o objeto. Caso esta função consiga desempenhar a conexão desejada, ela poderia ser utilizada
+// nas três classes do projeto, pois todas desempenham um funcionamento parecido para listagens de conteúdos no banco (Por ID, Listamento de todos e listagem por Campus no caso desta Classe).
+
+
+
+
+
 public class DepartmentDAO {
 
+	private conectBD(){
+		Connection conect = null;
+		try{
+			conect = ConnectionDAO.getInstance().getConnection();
+			return conect;
+		}finally{
+			if((conect != null) && !conect.isClosed())
+			conect.close();
+		}
+	}
+
 	public Department findById(int id) throws SQLException{
-		Connection conn = null;
+		//Connection conn = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.prepareStatement(
+			//conn = ConnectionDAO.getInstance().getConnection();
+			stmt = conectBD().prepareStatement(
 				"SELECT department.*, campus.name AS campusName " +
 				"FROM department INNER JOIN campus ON campus.idCampus=department.idCampus " +
 				"WHERE idDepartment = ?");
@@ -40,19 +62,19 @@ public class DepartmentDAO {
 				rs.close();
 			if((stmt != null) && !stmt.isClosed())
 				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			// if((conn != null) && !conn.isClosed())
+			// 	conn.close();
 		}
 	}
 	
 	public List<Department> listAll(boolean onlyActive) throws SQLException{
-		Connection conn = null;
+		// Connection conn = null;
 		Statement stmt = null;
 		ResultSet rs = null;
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.createStatement();
+			//conn = ConnectionDAO.getInstance().getConnection();
+			stmt = conectBD().createStatement();
 		
 			rs = stmt.executeQuery("SELECT department.*, campus.name AS campusName " +
 					"FROM department INNER JOIN campus ON campus.idCampus=department.idCampus " + 
@@ -70,19 +92,19 @@ public class DepartmentDAO {
 				rs.close();
 			if((stmt != null) && !stmt.isClosed())
 				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			// if((conn != null) && !conn.isClosed())
+			// 	conn.close();
 		}
 	}
 	
 	public List<Department> listByCampus(int idCampus, boolean onlyActive) throws SQLException{
-		Connection conn = null;
+		// Connection conn = null;
 		Statement stmt = null;
 		ResultSet rs = null;
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.createStatement();
+			//conn = ConnectionDAO.getInstance().getConnection();
+			stmt = conectBD().createStatement();
 		
 			rs = stmt.executeQuery("SELECT department.*, campus.name AS campusName " +
 					"FROM department INNER JOIN campus ON campus.idCampus=department.idCampus " +
@@ -99,9 +121,9 @@ public class DepartmentDAO {
 			if((rs != null) && !rs.isClosed())
 				rs.close();
 			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			 	stmt.close();
+			// if((conn != null) && !conn.isClosed())
+			// 	conn.close();
 		}
 	}
 	
