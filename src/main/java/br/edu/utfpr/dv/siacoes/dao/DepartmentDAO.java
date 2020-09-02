@@ -20,7 +20,7 @@ import br.edu.utfpr.dv.siacoes.model.Department;
 // nas três classes do projeto, pois todas desempenham um funcionamento parecido para listagens de conteúdos no banco (Por ID, Listamento de todos e listagem por Campus no caso desta Classe).
 
 
-
+// Como um todo, porém o código está bem entendível, desde a parte de conexão, listagem e salvamento de contéudo.
 
 
 public class DepartmentDAO {
