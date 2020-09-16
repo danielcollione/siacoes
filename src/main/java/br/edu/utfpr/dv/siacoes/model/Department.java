@@ -18,3 +18,10 @@ import lombok.Data
 	
 	
 }
+
+@Test
+public void test(){
+	assertEquals(5, Department(5, 1, 2, 3));
+	assertEquals('campus', Department('campus'));
+	assetEquals('name', Department('name'));
+}

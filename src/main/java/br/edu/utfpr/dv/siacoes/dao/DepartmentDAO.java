@@ -21,10 +21,7 @@ import br.edu.utfpr.dv.siacoes.model.Department;
 
 
 // Como um todo, porém o código está bem entendível, desde a parte de conexão, listagem e salvamento de contéudo.
-
-
-public class DepartmentDAO {
-
+public abstract class ConectarBD {
 	private conectBD(){
 		Connection conect = null;
 		try{
@@ -35,6 +32,24 @@ public class DepartmentDAO {
 			conect.close();
 		}
 	}
+}
+
+public abstract class FinalizarConect(){
+	private finish(rs, stmt, conn){
+
+		
+			if((rs != null) && !rs.isClosed())
+				rs.close();
+			if((stmt != null) && !stmt.isClosed())
+				stmt.close();
+			if((conn != null) && !conn.isClosed())
+				conn.close();
+		
+}
+
+public class DepartmentDAO extends ConectarBD{
+
+	
 
 	public Department findById(int id) throws SQLException{
 		//Connection conn = null;
@@ -58,12 +73,7 @@ public class DepartmentDAO {
 				return null;
 			}
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			// if((conn != null) && !conn.isClosed())
-			// 	conn.close();
+			public abstract void FinalizarConect();
 		}
 	}
 	
@@ -88,12 +98,7 @@ public class DepartmentDAO {
 			
 			return list;
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			// if((conn != null) && !conn.isClosed())
-			// 	conn.close();
+		public abstract void FinalizarConect();
 		}
 	}
 	
@@ -118,12 +123,7 @@ public class DepartmentDAO {
 			
 			return list;
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-			 	stmt.close();
-			// if((conn != null) && !conn.isClosed())
-			// 	conn.close();
+			public abstract void FinalizarConect();
 		}
 	}
 	
@@ -174,12 +174,7 @@ public class DepartmentDAO {
 			
 			return department.getIdDepartment();
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			public abstract void FinalizarConect();
 		}
 	}
 	

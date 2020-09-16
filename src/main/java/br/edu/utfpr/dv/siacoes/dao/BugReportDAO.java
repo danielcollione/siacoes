@@ -14,7 +14,35 @@ import br.edu.utfpr.dv.siacoes.model.BugReport.BugStatus;
 import br.edu.utfpr.dv.siacoes.model.Module;
 import br.edu.utfpr.dv.siacoes.model.User;
 
-public class BugReportDAO {
+public abstract class ConectarBD {
+	private conectBD(){
+		Connection conect = null;
+		try{
+			conect = ConnectionDAO.getInstance().getConnection();
+			return conect;
+		}finally{
+			if((conect != null) && !conect.isClosed())
+			conect.close();
+		}
+	}
+}
+
+public abstract class FinalizarConect(){
+	private finish(rs, stmt, conn){
+
+		
+			if((rs != null) && !rs.isClosed())
+				rs.close();
+			if((stmt != null) && !stmt.isClosed())
+				stmt.close();
+			if((conn != null) && !conn.isClosed())
+				conn.close();
+		
+}
+	
+}
+
+public class BugReportDAO extends ConectarBD{
 	
 	public BugReport findById(int id) throws SQLException{
 		Connection conn = null;
@@ -22,8 +50,8 @@ public class BugReportDAO {
 		ResultSet rs = null;
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.prepareStatement("SELECT bugreport.*, \"user\".name " + 
+			
+			stmt = conectBD().prepareStatement("SELECT bugreport.*, \"user\".name " + 
 				"FROM bugreport INNER JOIN \"user\" ON \"user\".idUser=bugreport.idUser " +
 				"WHERE idBugReport = ?");
 		
@@ -37,13 +65,7 @@ public class BugReportDAO {
 				return null;
 			}
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
-		}
+			public abstract void FinalizarConect();
 	}
 	
 	public List<BugReport> listAll() throws SQLException{
@@ -52,8 +74,8 @@ public class BugReportDAO {
 		ResultSet rs = null;
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.createStatement();
+			
+			stmt = conectBD(.createStatement();
 			
 			rs = stmt.executeQuery("SELECT bugreport.*, \"user\".name " +
 					"FROM bugreport INNER JOIN \"user\" ON \"user\".idUser=bugreport.idUser " +
@@ -66,12 +88,7 @@ public class BugReportDAO {
 			
 			return list;
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			public abstract void FinalizarConect();
 		}
 	}
 	
@@ -82,12 +99,12 @@ public class BugReportDAO {
 		ResultSet rs = null;
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
+			
 			
 			if(insert){
-				stmt = conn.prepareStatement("INSERT INTO bugreport(idUser, module, title, description, reportDate, type, status, statusDate, statusDescription) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+				stmt = conectBD(.prepareStatement("INSERT INTO bugreport(idUser, module, title, description, reportDate, type, status, statusDate, statusDescription) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 			}else{
-				stmt = conn.prepareStatement("UPDATE bugreport SET idUser=?, module=?, title=?, description=?, reportDate=?, type=?, status=?, statusDate=?, statusDescription=? WHERE idBugReport=?");
+				stmt = conectBD(.prepareStatement("UPDATE bugreport SET idUser=?, module=?, title=?, description=?, reportDate=?, type=?, status=?, statusDate=?, statusDescription=? WHERE idBugReport=?");
 			}
 			
 			stmt.setInt(1, bug.getUser().getIdUser());
@@ -120,12 +137,7 @@ public class BugReportDAO {
 			
 			return bug.getIdBugReport();
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			public abstract void FinalizarConect();
 		}
 	}
 	

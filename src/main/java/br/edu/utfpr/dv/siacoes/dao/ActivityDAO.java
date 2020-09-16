@@ -11,7 +11,34 @@ import java.util.List;
 import br.edu.utfpr.dv.siacoes.log.UpdateEvent;
 import br.edu.utfpr.dv.siacoes.model.Activity;
 
-public class ActivityDAO {
+public abstract class ConectarBD {
+	private conectBD(){
+		Connection conect = null;
+		try{
+			conect = ConnectionDAO.getInstance().getConnection();
+			return conect;
+		}finally{
+			if((conect != null) && !conect.isClosed())
+			conect.close();
+		}
+	}
+}
+
+public abstract class FinalizarConect(){
+	private finish(rs, stmt, conn){
+
+		
+			if((rs != null) && !rs.isClosed())
+				rs.close();
+			if((stmt != null) && !stmt.isClosed())
+				stmt.close();
+			if((conn != null) && !conn.isClosed())
+				conn.close();
+		
+}
+	
+}
+public class ActivityDAO extends ConectarBD {
 	
 	public boolean needsFillAmount(int idActivity) throws SQLException{
 		Connection conn = null;
@@ -19,8 +46,8 @@ public class ActivityDAO {
 		ResultSet rs = null;
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.createStatement();
+			
+			stmt = conectBD().createStatement();
 			
 			rs = stmt.executeQuery("SELECT activityunit.fillamount FROM activityunit " +
 					"INNER JOIN activity ON activity.idactivityunit=activityunit.idactivityunit " +
@@ -32,23 +59,16 @@ public class ActivityDAO {
 				return false;	
 			}
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			public abstract void FinalizarConect();
 		}
 	}
 	
 	public List<Activity> listAll() throws SQLException{
-		Connection conn = null;
-		Statement stmt = null;
-		ResultSet rs = null;
+		
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.createStatement();
+			
+			stmt = conectBD().createStatement();
 			
 			rs = stmt.executeQuery("SELECT activity.*, activityunit.description AS unit, activitygroup.description AS group, activitygroup.sequence AS groupSequence " +
 					"FROM activity INNER JOIN activityunit ON activityunit.idActivityUnit=activity.idActivityUnit " +
@@ -63,23 +83,16 @@ public class ActivityDAO {
 			
 			return list;
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			public abstract void FinalizarConect();
 		}
 	}
 	
 	public List<Activity> listByDepartment(int idDepartment) throws SQLException{
-		Connection conn = null;
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
+		
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.prepareStatement(
+			
+			stmt = conectBD().prepareStatement(
 					"SELECT activity.*, activityunit.description AS unit, activitygroup.description AS groupDescription, activitygroup.sequence AS groupSequence " +
 					"FROM activity INNER JOIN activityunit ON activityunit.idActivityUnit=activity.idActivityUnit " +
 					"INNER JOIN activitygroup ON activitygroup.idActivityGroup=activity.idActivityGroup " +
@@ -97,23 +110,16 @@ public class ActivityDAO {
 			
 			return list;
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			public abstract void FinalizarConect();
 		}
 	}
 	
 	public List<Activity> listByGroup(int idDepartment, int idGroup) throws SQLException{
-		Connection conn = null;
-		PreparedStatement stmt = null;
-		ResultSet rs = null;
+		
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.prepareStatement(
+			
+			stmt = conectBD().prepareStatement(
 				"SELECT activity.*, activityunit.description AS unit, activitygroup.description AS groupDescription, activitygroup.sequence AS groupSequence " +
 				"FROM activity INNER JOIN activityunit ON activityunit.idActivityUnit=activity.idActivityUnit " +
 				"INNER JOIN activitygroup ON activitygroup.idActivityGroup=activity.idActivityGroup " +
@@ -132,12 +138,7 @@ public class ActivityDAO {
 			
 			return list;
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			public abstract void FinalizarConect();
 		}
 	}
 	
@@ -147,8 +148,8 @@ public class ActivityDAO {
 		ResultSet rs = null;
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.prepareStatement(
+			
+			stmt = conectBD().prepareStatement(
 				"SELECT activity.*, activityunit.description AS unit, activitygroup.description AS groupDescription, activitygroup.sequence AS groupSequence " +
 				"FROM activity INNER JOIN activityunit ON activityunit.idActivityUnit=activity.idActivityUnit " +
 				"INNER JOIN activitygroup ON activitygroup.idActivityGroup=activity.idActivityGroup " +
@@ -164,12 +165,7 @@ public class ActivityDAO {
 				return null;
 			}
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			public abstract void FinalizarConect();
 		}
 	}
 	
@@ -180,19 +176,19 @@ public class ActivityDAO {
 		ResultSet rs = null;
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
+		
 			
 			if(insert){
-				stmt = conn.prepareStatement("INSERT INTO activity(idDepartment, idActivityGroup, idActivityUnit, description, score, maximumInSemester, active, sequence) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+				stmt = conectBD().prepareStatement("INSERT INTO activity(idDepartment, idActivityGroup, idActivityUnit, description, score, maximumInSemester, active, sequence) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 				
-				Statement stmt2 = conn.createStatement();
+				Statement stmt2 = conectBD().createStatement();
 				rs = stmt2.executeQuery("SELECT COUNT(*) as total FROM activity WHERE idActivityGroup=" + String.valueOf(activity.getGroup().getIdActivityGroup()) + " AND idDepartment=" + String.valueOf(activity.getDepartment().getIdDepartment()));
 				rs.next();
 				activity.setSequence(rs.getInt("total") + 1);
 				stmt2.close();
 				rs.close();
 			}else{
-				stmt = conn.prepareStatement("UPDATE activity SET idDepartment=?, idActivityGroup=?, idActivityUnit=?, description=?, score=?, maximumInSemester=?, active=?, sequence=? WHERE idActivity=?");
+				stmt = conectBD().prepareStatement("UPDATE activity SET idDepartment=?, idActivityGroup=?, idActivityUnit=?, description=?, score=?, maximumInSemester=?, active=?, sequence=? WHERE idActivity=?");
 			}
 			
 			stmt.setInt(1, activity.getDepartment().getIdDepartment());
@@ -224,12 +220,7 @@ public class ActivityDAO {
 			
 			return activity.getIdActivity();
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			public abstract void FinalizarConect();
 		}
 	}
 	
@@ -258,8 +249,8 @@ public class ActivityDAO {
 		ResultSet rs = null;
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.prepareStatement("SELECT sequence, idActivityGroup FROM activity WHERE idActivity=?");
+			
+			stmt = conectBD().prepareStatement("SELECT sequence, idActivityGroup FROM activity WHERE idActivity=?");
 			stmt.setInt(1, idActivity);
 			rs = stmt.executeQuery();
 			
@@ -269,7 +260,7 @@ public class ActivityDAO {
 				
 				rs.close();
 				stmt.close();
-				stmt = conn.prepareStatement("SELECT idActivity FROM activity WHERE idActivityGroup=? AND sequence < ? ORDER BY sequence DESC");
+				stmt = conectBD().prepareStatement("SELECT idActivity FROM activity WHERE idActivityGroup=? AND sequence < ? ORDER BY sequence DESC");
 				stmt.setInt(1, idActivityGroup);
 				stmt.setInt(2, sequence);
 				rs = stmt.executeQuery();
@@ -278,14 +269,14 @@ public class ActivityDAO {
 					int idActivity2 = rs.getInt("idActivity");
 					
 					try{
-						conn.setAutoCommit(false);
+						conectBD().setAutoCommit(false);
 						
-						stmt = conn.prepareStatement("UPDATE activity SET sequence=? WHERE idActivity=?");
+						stmt = conectBD().prepareStatement("UPDATE activity SET sequence=? WHERE idActivity=?");
 						stmt.setInt(1, sequence);
 						stmt.setInt(2, idActivity2);
 						stmt.execute();
 						
-						stmt = conn.prepareStatement("UPDATE activity SET sequence=? WHERE idActivity=?");
+						stmt = conectBD().prepareStatement("UPDATE activity SET sequence=? WHERE idActivity=?");
 						stmt.setInt(1, sequence - 1);
 						stmt.setInt(2, idActivity);
 						stmt.execute();
@@ -301,12 +292,7 @@ public class ActivityDAO {
 				}
 			}
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			public abstract void FinalizarConect();
 		}
 	}
 	
@@ -316,8 +302,8 @@ public class ActivityDAO {
 		ResultSet rs = null;
 		
 		try{
-			conn = ConnectionDAO.getInstance().getConnection();
-			stmt = conn.prepareStatement("SELECT sequence, idActivityGroup FROM activity WHERE idActivity=?");
+			
+			stmt = conectBD().prepareStatement("SELECT sequence, idActivityGroup FROM activity WHERE idActivity=?");
 			stmt.setInt(1, idActivity);
 			rs = stmt.executeQuery();
 			
@@ -359,12 +345,7 @@ public class ActivityDAO {
 				}
 			}
 		}finally{
-			if((rs != null) && !rs.isClosed())
-				rs.close();
-			if((stmt != null) && !stmt.isClosed())
-				stmt.close();
-			if((conn != null) && !conn.isClosed())
-				conn.close();
+			public abstract void FinalizarConect();
 		}
 	}
 
